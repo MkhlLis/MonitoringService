@@ -27,14 +27,19 @@ public class AvailableCheckerService : IHostedService
         while (!cancellationToken.IsCancellationRequested)
         {
             await Task.Delay(TimeSpan.FromSeconds(2), cancellationToken);
-            var products = await _store.GetAll(cancellationToken);
-            Console.WriteLine($"Available checker service is checking. Book" +
-                              $"\n {products.FirstOrDefault(x => x.Id == 1).Id}" +
-                              $"\n {products.FirstOrDefault(x => x.Id == 1).Title}" +
-                              $"\n {products.FirstOrDefault(x => x.Id == 1).Description}" +
-                              $"\n is {(products.FirstOrDefault(x => x.Id == 1).IsAvailable 
-                                  ? "available" 
-                                  : "not available")}");
+            var products = (await _store.GetAll(cancellationToken)).Where(x => x.IsAvailable).ToList();
+            var bookingRequests = await _store.GetAllRequests(cancellationToken);
+            if (products.Any() && bookingRequests.Any())
+            {
+                foreach (var request in bookingRequests)
+                {
+                    if (products.Select(x => x.Title).Contains(request.Title))
+                    {
+                        await _store.SwitchState(products.Where(x => x.Title == request.Title).Select(x => x.Id).First(), false, cancellationToken);
+                        Console.WriteLine($"Product with title {request.Title} has been booked for a customer with id {request.Customers.First().CustomerId}.");
+                    }
+                }
+            }
         }
     }
 }
