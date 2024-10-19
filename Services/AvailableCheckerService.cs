@@ -5,10 +5,12 @@ namespace MonitoringService.Services;
 public class AvailableCheckerService : IHostedService
 {
     private readonly IStore _store;
+    private readonly ILogger<AvailableCheckerService> _logger;
 
-    public AvailableCheckerService(IStore store)
+    public AvailableCheckerService(IStore store, ILogger<AvailableCheckerService> logger)
     {
         _store = store;
+        _logger = logger;
     }
     
     public Task StartAsync(CancellationToken cancellationToken)
@@ -35,8 +37,14 @@ public class AvailableCheckerService : IHostedService
                 {
                     if (products.Select(x => x.Title).Contains(request.Title))
                     {
-                        await _store.SwitchState(products.Where(x => x.Title == request.Title).Select(x => x.Id).First(), false, cancellationToken);
-                        Console.WriteLine($"Product with title {request.Title} has been booked for a customer with id {request.Customers.First().CustomerId}.");
+                        await _store.SwitchState(
+                            products.Where(x => x.Title == request.Title)
+                                .Select(x => x.Id)
+                                .First(),
+                            false,
+                            cancellationToken);
+                        _logger.LogInformation($"Product with title {request.Title} has been booked for a customer" +
+                                               $" with id {request.Customers.First().CustomerId}.");
                     }
                 }
             }
