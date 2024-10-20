@@ -16,19 +16,20 @@ internal class InMemoryProductStore : IStore
 
     public async Task SwitchState(int id, bool isAvailable, CancellationToken cancellationToken)
     {
-        await Task.Delay(TimeSpan.FromSeconds(2), cancellationToken);
+        await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
         _products.Find(p => p.Id == id)!.IsAvailable = isAvailable;
     }
 
     public async Task<IEnumerable<Product>> GetAll(CancellationToken cancellationToken)
     {
-        await Task.Delay(TimeSpan.FromSeconds(2), cancellationToken);
+        await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
         return _products;
     }
 
     public async Task SetCustomersInProductQueue(IList<BookingRequest> request, CancellationToken cancellationToken)
     {
-        await Task.Delay(TimeSpan.FromSeconds(2), cancellationToken);
+        await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
+        _bookingRequests.Clear();
         foreach (var req in request)
         {
             _bookingRequests.Add(req);
@@ -37,7 +38,7 @@ internal class InMemoryProductStore : IStore
 
     public async Task<IEnumerable<BookingRequest>> GetAllRequests(CancellationToken cancellationToken)
     {
-        await Task.Delay(TimeSpan.FromSeconds(2), cancellationToken);
+        await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
         return _bookingRequests;
     }
 }

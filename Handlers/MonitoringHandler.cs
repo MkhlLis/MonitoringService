@@ -27,11 +27,13 @@ internal class MonitoringHandler : IMonitoringHandler
         await _store.SwitchState(id, isAvailable, cancellationToken);
     }
 
+    /// <inheritdoc/>
     public async Task SetCustomersInProductQueue(IList<BookingRequest> request, CancellationToken cancellationToken)
     {
         await _store.SetCustomersInProductQueue(request, cancellationToken);
     }
 
+    /// <inheritdoc/>
     public async Task<IEnumerable<BookingRequest>> GetAllRequests(CancellationToken cancellationToken)
     {
         return await _store.GetAllRequests(cancellationToken);

@@ -1,4 +1,5 @@
 using MonitoringService.Contracts.Interfaces;
+using MonitoringService.Contracts.Models;
 
 namespace MonitoringService.Services;
 
@@ -6,11 +7,16 @@ public class AvailableCheckerService : IHostedService
 {
     private readonly IStore _store;
     private readonly ILogger<AvailableCheckerService> _logger;
+    private readonly IProduceEventService _produceEventService;
 
-    public AvailableCheckerService(IStore store, ILogger<AvailableCheckerService> logger)
+    public AvailableCheckerService(
+        IStore store,
+        ILogger<AvailableCheckerService> logger,
+        IProduceEventService produceEventService)
     {
         _store = store;
         _logger = logger;
+        _produceEventService = produceEventService;
     }
     
     public Task StartAsync(CancellationToken cancellationToken)
@@ -28,7 +34,7 @@ public class AvailableCheckerService : IHostedService
     {
         while (!cancellationToken.IsCancellationRequested)
         {
-            await Task.Delay(TimeSpan.FromSeconds(2), cancellationToken);
+            await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
             var products = (await _store.GetAll(cancellationToken)).Where(x => x.IsAvailable).ToList();
             var bookingRequests = await _store.GetAllRequests(cancellationToken);
             if (products.Any() && bookingRequests.Any())
@@ -43,11 +49,22 @@ public class AvailableCheckerService : IHostedService
                                 .First(),
                             false,
                             cancellationToken);
+
+                        await PostAsync(request, cancellationToken);
                         _logger.LogInformation($"Product with title {request.Title} has been booked for a customer" +
                                                $" with id {request.Customers.First().CustomerId}.");
                     }
                 }
             }
         }
+    }
+
+    private async Task PostAsync(BookingRequest content, CancellationToken cancellationToken)
+    {
+        await _produceEventService.ProduceAsync(new BookingResponseEvent
+        {
+            Title = content.Title,
+            CustomerId = content.Customers.First().CustomerId,
+        }, cancellationToken);
     }
 }

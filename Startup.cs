@@ -46,6 +46,8 @@ public class Startup
 
     private static IServiceCollection Configure(IServiceCollection services)
     {
+        services.AddHttpClient<IProduceEventService, ProduceEventService>();
+        services.AddSingleton<ProduceEventService, ProduceEventService>();
         services.AddScoped<IMonitoringHandler, MonitoringHandler>();
         services.AddSingleton<IStore, InMemoryProductStore>();
 

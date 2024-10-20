@@ -64,5 +64,4 @@ public class MonitoringController : ControllerBase
     {
         return await _handler.GetAllRequests(cancellationToken);
     }
-
 }
