@@ -49,7 +49,7 @@ if (products.Any() && bookingRequests.Any())
 }
 ```
 
-**1. Контроллер OrchestratorController**
+**1. Контроллер Monitoring**
 API Реализует
 1. GET /administration/get-products Запрос продуктов и их статусов.
 2. PUT /administration/switch-state/{id} Переключение статуса продукта (заглушка, чтобы можно было переключить
